@@ -1,0 +1,168 @@
+---
+title: "R Experiment1"
+author: "Eugene Liu"
+output:
+  pdf_document: default
+  html_notebook: default
+  word_document: default
+---
+
+一.配置环境 OK  
+二.
+1.
+```{r}
+A<-c(1,3,5,7,9)
+A
+```
+
+2.
+```{r}
+B<-rep(1:12,each=3)
+B
+```
+3.(1).
+```{r}
+length(B)
+```
+(2).
+```{r}
+length(unique(B))
+```
+4.(1).
+```{r}
+intersect(A,B)
+```
+  (2).
+```{r}
+C<-union(A,B)
+C
+```
+  (3).
+```{r}
+setdiff(A,B)
+```
+5.
+```{r}
+sort(C,decreasing = TRUE)
+```
+6.(1).
+```{r}
+C[3]
+```
+  (2).
+```{r}
+C[4:length(C)]
+```
+  (3).
+```{r}
+C[C>=3 & C<7]
+```
+7.
+```{r}
+as.character(C)
+```
+8.(1).
+```{r}
+length(C)
+```
+  (2).
+```{r}
+max(C)
+```
+  (3).
+```{r}
+which.max(C)
+```
+9.
+```{r}
+a<-array(A)
+a
+```
+  
+```{r}
+class(a)
+```
+10.
+```{r}
+   M1<-matrix(1:20,4,5,byrow=TRUE)
+   M2<-matrix(1:20,4,5,byrow=FALSE)
+   M3<-M1+M2
+   M4<-M3[,c(1:2,4:5)]
+   M4
+```
+11.
+```{r}
+   M5<-matrix(1:9,3,3,byrow=FALSE)
+   M6<-diag(diag(M5))
+   M7<-M5%*%M6
+   M8<-t(M7)
+   M8
+```
+12.
+```{r}
+   M9<-matrix(1:12,4,3,byrow=FALSE)
+   apply(M9,2,sum)
+   apply(M9,1,mean)
+```
+三.
+1.
+```{r}
+algae1<-read.csv("RProjects/experiment/sources/algae.csv",header=TRUE)
+algae1
+```
+2.
+```{r}
+algae1[1:10]
+```
+3.
+```{r 基本的统计信息 }
+algae1
+```
+     
+```{r 数据的维度 }
+dim(algae1)
+```
+        
+```{r 特征名称 }
+colnames(algae1)
+```
+  
+```{r season数据类型 }
+class(algae1$season)
+```
+ 
+```{r size数据类型 }
+class(algae1$size)
+```
+    
+```{r NO3数据类型}
+class(algae1$NO3)
+```
+4.
+```{r}
+newalgael<-subset(algae1,season=='summer')
+nrow(newalgael)
+```
+5.
+```{r}
+newalgael[which(is.na(newalgael$Cl)),]$Cl<-median(newalgael$Cl,na.rm=TRUE)
+```
+6.
+```{r}
+  na.omit(newalgael)
+  nrow(newalgael)
+  nrow(na.omit(newalgael))
+```
+7.
+```{r}
+algae2<-edit(algae1)
+algae2
+```
+8.
+```{r}
+  algae3<-rbind(algae1,algae2)
+  nrow(algae1)
+  nrow(algae2)
+  nrow(algae3)
+```  
+

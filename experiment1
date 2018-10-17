@@ -1,0 +1,51 @@
+一.配置环境 OK
+二.
+1.A<-c(1,3,5,7,9)
+2.B<-rep(1:12,each=3)
+3.(1).length(B)
+  (2).length(unique(B))
+4.(1).intersect(A,B)
+  (2).C<-union(A,B)
+  (3).setdiff(A,B)
+5.sort(C,decreasing = TRUE)
+6.(1).C[3]
+  (2).C[4:length(C)]
+  (3).C[C>=3 & C<7]
+7.as.character(C)
+8.(1).length(C)
+  (2).max(C)
+  (3).which.max(C)
+9.a<-array(A)
+  class(a)
+10.M1<-matrix(1:20,4,5,byrow=TRUE)
+   M2<-matrix(1:20,4,5,byrow=FALSE)
+   M3<-M1+M2
+   M4<-M3[,c(1:2,4:5)]
+11.M5<-matrix(1:9,3,3,byrow=FALSE)
+   M6<-diag(diag(M5))
+   M7<-M5%*%M6
+   M8<-t(M7)
+12.M9<-matrix(1:12,4,3,byrow=FALSE)
+   apply(M9,2,sum)
+   apply(M9,1,mean)
+三.
+1.algae1<-read.csv("RProjects/experiment/sources/algae.csv",header=TRUE)
+2.algae1[1:10]
+3.基本的统计信息 algae1
+  数据的维度     dim(algae1)
+  特征名称       colnames(algae1)
+  season数据类型 class(algae1$season)
+  size数据类型   class(algae1$size)
+  NO3数据类型    class(algae1$NO3)
+4.newalgael<-subset(algae1,season=='summer')
+  nrow(newalgael)
+5.newalgael[which(is.na(newalgael$Cl)),]$Cl<-median(newalgael$Cl,na.rm=TRUE)
+6.na.omit(newalgael)
+  nrow(newalgael)
+  nrow(na.omit(newalgael))
+7.algae2<-edit(algae1)
+8.algae3<-rbind(algae1,algae2)
+  nrow(algae1)
+  nrow(algae2)
+  nrow(algae3)
+  

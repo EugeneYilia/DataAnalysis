@@ -1,0 +1,34 @@
+第一题:
+1.library(reshape)
+df <- read.csv("/home/eugeneliu/RProjects/experiment/sources/item_feature1.csv",header = FALSE)
+df <- rename(df,c(V1="date",V2="item_id",V3="cate_id",V4="cate_level_id",V5="brand_id",V6="supplier_id",V7="pv_ipv",V8="cart_uv",V9="collect_uv",V10="cart_ipv"))
+2.df$recode <- "NaN"
+df$recode[as.numeric(df$cart_uv)<5000] <- "less"
+df$recode[df$recode != "less" & as.numeric(df$cart_uv) >= 5000 & as.numeric(df$cart_uv) < 15000] <- "common"
+df$recode[df$recode != "less" & df$recode != "common" & as.numeric(df$cart_uv) >= 15000] <- "many"
+3.sum(is.na(df))
+df <- na.omit(df)
+4.df$date<-format(as.Date(as.character(df$date),"%Y%m%d"),"%Y-%m-%d")
+5.df <- df[order(df$date),]
+  df[1:10,]
+  write.csv(df,file="/home/eugeneliu/RProjects/experiment/results/df_asc",row.names=FALSE,quote=FALSE)
+6.df1 <- df[order(df$date,-df$item_id),]
+  df1[1:5,]
+第二题
+1.df1 <- subset(df,select = c(date,item_id,cate_id,cart_uv,recode,collect_uv,cart_ipv))
+  df2 <- subset(df1,select = c(-cart_ipv))
+  df3 <- df1[as.numeric(df1$item_id)>500 & df1$recode=="less",]
+2.df_sub <- subset(df[df$date=="2015-02-14"&as.numeric(df$item_id)==300,],select = (date:supplier_id))
+3.df4<-df[sample(1:nrow(df),500,replace = FALSE),]
+  dim(df4)   
+  df4[1,]
+4.df1_temp <- subset(df1,select = (item_id:cate_id))
+  df5 <- merge(df1_temp,df,by="item_id") 
+5.library(sqldf)
+df6<-sqldf("select * from df1 where item_id = 300")
+6.df_tem <- df2[sample(1:nrow(df2),dim(df6)[1],replace=TRUE),]
+  df7 <- cbind(df_tem,df6)  
+7.feature <- subset(df,select = c(date,item_id,cate_id,cart_ipv))
+feature <- feature[order(feature$date),]
+library(sqldf)
+sqldf("select distinct cate_id from feature")
