@@ -1,7 +1,11 @@
 ---
 title: "R Experiment2"
 author: "Eugene Liu"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+  word_document: default
 ---
 
 第一题:

@@ -2,9 +2,9 @@
 title: "R Experiment1"
 author: "Eugene Liu"
 output:
-  pdf_document: default
-  html_notebook: default
   word_document: default
+  html_notebook: default
+  pdf_document: default
 ---
 
 一.配置环境 OK  

@@ -1,0 +1,128 @@
+df<-read.csv("/home/eugeneliu/RProjects/experiment/sources/SY-20150401.csv",header = FALSE)
+library(reshape)
+df<-rename(df,c(V1="card_id",V2="date",V3="time",V4="station",V5="vehicle",V6="money",V7="property"))
+library(lubridate)
+df$seconds <- period_to_seconds(hms(df$time))
+df<-df[order(df$card_id,df$seconds),]
+df$minutes<-(df$seconds%/%300+1)
+df2<-read.csv("/home/eugeneliu/RProjects/experiment/sources/systation.csv",header = TRUE)
+df$line. <- substring(df$station,1,3)
+df$station. <- substring(df$station,4,nchar(as.character(df$station)))
+df <- sqldf("select * from df where card_id in (select card_id from df group by card_id having count(*) != 1 and count(*) != 3 and count(*) != 5 and count(*) != 7)")
+card.id <- c()
+time.in <- c()
+line.in <- c()
+station.in <- c()
+M5.in <- c()
+time.out <- c()
+line.out <- c()
+station.out <- c()
+money <- c()
+M5.out <- c()
+duration <- c()
+for(i in 1:dim(df)[1]){
+  if(i%%2 == 1){
+    if(df[i,]$money == 0){
+      card.id[length(card.id)+1] <- df$card_id[i]
+      time.in[length(time.in)+1] <- as.character(df$time[i])
+      line.in[length(line.in)+1] <- as.character(df$line.[i])
+      station.in[length(station.in)+1] <- as.character(df$station.[i])
+      M5.in[length(M5.in)+1] <- as.character(df$minutes[i])
+      time.out[length(time.out)+1] <- as.character(df$time[i+1])
+      line.out[length(line.out)+1] <- as.character(df$line.[i+1])
+      station.out[length(station.out)+1]<-as.character(df$station.[i+1])
+      money[length(money)+1]<-as.character(df$money[i+1])
+      M5.out[length(M5.out)+1]<-as.character(df$minutes[i+1])
+      duration[length(duration)+1]<-as.character((df$seconds[i+1]-df$seconds[i]))
+    }
+  }
+}
+trade.metro.in.out<-data.frame(card.id=card.id,time.in=time.in,line.in=line.in,station.in=station.in,M5.in=M5.in,time.out=time.out,line.out=line.out,station.out=station.out,money=money,M5.out=M5.out,duration=duration)
+head(trade.metro.in.out,10)
+write.csv(trade.metro.in.out,file="/home/eugeneliu/RProjects/experiment/results/shmetro_line_in_out.csv",row.names  = FALSE,quote = FALSE)
+
+
+library(sqldf)
+stations <- sqldf("select distinct `station.` from df")
+stations <- as.character(stations$station.)
+count <- c(rep(0,length(stations)))
+stations_count <- data.frame(stations,count)
+for(i in 1:dim(trade.metro.in.out)[1]){
+  stations_count[which(stations_count$stations == trade.metro.in.out$station.in[i]),][2] = stations_count[which(stations_count$stations==trade.metro.in.out$station.in[i]),][2] + 1
+  stations_count[which(stations_count$stations == trade.metro.in.out$station.out[i]),][2] = stations_count[which(stations_count$stations==trade.metro.in.out$station.out[i]),][2] + 1
+}
+stations_count <- stations_count[order(-stations_count$count),]
+stations_count_top_10 <- stations_count$stations[1:10]
+head(stations_count_top_10,6)
+library(ggplot2) 
+graph_stations_count <- stations_count[1:10,]
+p <- ggplot(data = graph_stations_count, aes(x=stations,y=count)) 
+p <- p + geom_bar( stat="identity" , width = 0.4, fill = "cornflowerblue") 
+p <- p + geom_text(label=paste(graph_stations_count$count) ,colour = "red", vjust=-1) 
+p <- p + labs(x="站点",y="人流量",title = "站点流量统计") 
+p <- p + scale_y_continuous(limits=c(0, max(graph_stations_count$count) * 1.05)) 
+p <- p + theme( plot.title = element_text(size = 16, face = "bold")) 
+p
+
+
+
+
+as.vector(stations_count_top_10)
+barplot(stations_count_top_10)
+
+class(stations_count_top_10)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+mode(df$time)
+df$time
+card.id[1] <- df[1]$card_id
+
+mode(dim(df)[1])[1]
+
+a <- c(1,2)
+a
+length(a)[1]
+a[length(a)+1] <- 4
+a
+
+b <- c()
+b[1] <-1
+b
+
+for(i in 1:dim(df)[1]){
+  if(i%%2 == 1){
+    print(df[i,]$money)
+  }
+}
+
+
+
+sqldf("select * from df where card_id in (select card_id from df group by card_id having count(*) > 2)")
+
+trade.metro.in.out<- data.frame(df$card_id,df.)
+
+aggregate(df,by=list(df$card_id),FUN = )
+
+library(sqldf)
+temp<- sqldf("select * from df where card_id = 2002062859")
+
+mode(hms(df$time))
+period_to_seconds(hms(df$time))
+period_to_seconds(df$date)
+
+patientID <- c(1,2,3,4)
+age <- c(25,35,28,52)
+patientData <- data.frame(patientID,age)
+mode(patientData)

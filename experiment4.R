@@ -1,0 +1,126 @@
+df <- read.csv("/home/eugeneliu/RProjects/experiment/sources/hospital-data.csv",header = TRUE)
+lengths(df)
+df[1:5,]
+
+summary(df)
+range <- summary(df$ZIP.Code)[6] - summary(df$ZIP.Code)[1]
+range
+
+mystats<-function(x,na.omit=TRUE){
+  mymax<-max(x)
+  mymin<-min(x)
+  mymean<-mean(x)
+  mymedian<-median(x)
+  mysd<-sd(x)
+  myvar<-var(x)
+  return(c(max=mymax,min=mymin,mean=mymean,median=mymedian,sd=mysd,var=myvar))
+}
+sapply(df["Phone.Number"], mystats)
+
+aggregate(df["Phone.Number"],by=list(State=df$State),median)
+
+library(stringr)
+maxAndMin<-function(x,na.omit=TRUE){
+  mymax<-max(x)
+  mymin<-min(x)
+  return(c(max=mymax,min=mymin))
+}
+city_max_min_result<-aggregate(df["Phone.Number"],by=list(City=str_trim(df$City,'both')),maxAndMin)
+city_max_min_result[1:3,]
+
+mytable <- with(df,table(State))
+mytable
+prop.table(mytable)
+
+mycontable <- table(df$State,df$Hospital.Type)
+mycontable
+margin.table(mycontable,2)
+
+library(gmodels)
+mycrosstable <- CrossTable(df$Hospital.Ownership,df$Emergency.Services)
+mycrosstable
+
+
+
+
+
+
+
+
+library(vcd)
+death <- read.csv("/home/eugeneliu/RProjects/experiment/sources/death rate.csv",header = TRUE)
+death
+mytable<-xtabs(~Age+Male_Exp,data=death)
+mytable
+chisq.test(mytable)
+
+age_death_table <- xtabs(~Age+q_male,data = death)
+assocstats(age_death_table)
+
+age_death_data <- death[c("Age","q_male")]
+age_death_data <- na.omit(age_death_data)
+age_death_data
+cor(age_death_data)
+cor(age_death_data,method = "spearman")
+death<-na.omit(death)
+cov(death)
+
+cor.test(death$Female_Exp,death$Male_Exp)
+
+
+
+
+
+
+
+
+library(sqldf)
+care_df<-read.csv("/home/eugeneliu/RProjects/experiment/sources/outcome-of-care-measures.csv",header = TRUE,stringsAsFactors = FALSE)
+
+care_df<-care_df[which(care_df$Hospital.30.Day.Death..Mortality..Rates.from.Pneumonia!='Not Available'),]
+care_df<-care_df[which(care_df$Hospital.30.Day.Death..Mortality..Rates.from.Heart.Attack!='Not Available'),]
+care_df<-care_df[which(care_df$Hospital.30.Day.Death..Mortality..Rates.from.Heart.Failure!='Not Available'),]
+
+care_df$Hospital.30.Day.Death..Mortality..Rates.from.Heart.Attack <- as.numeric(care_df$Hospital.30.Day.Death..Mortality..Rates.from.Heart.Attack)
+care_df$Hospital.30.Day.Death..Mortality..Rates.from.Heart.Failure <- as.numeric(care_df$Hospital.30.Day.Death..Mortality..Rates.from.Heart.Failure)
+care_df$Hospital.30.Day.Death..Mortality..Rates.from.Pneumonia <- as.numeric(care_df$Hospital.30.Day.Death..Mortality..Rates.from.Pneumonia)
+
+states <- sqldf("select distinct State from care_df")
+states <- as.vector(unlist(states))
+best <- function(state,outcome){
+  valid_input = 1;
+  if(outcome == "heart attack" || outcome == "heart failure" || outcome == "pneumonia"){
+    
+  } else {
+    print("invalid outcome")
+    valid_input = 0
+  }
+  
+  if(state %in% states){
+    
+  } else {
+    print("invalid state")
+    valid_input = 0
+  }
+  
+  
+  if(valid_input == 1){
+    care_df <- care_df[which(care_df$State==state),]
+    if(outcome == "heart attack"){
+      care_df <- care_df[order(care_df$Hospital.30.Day.Death..Mortality..Rates.from.Heart.Attack,care_df$Hospital.Name),]
+    } else if(outcome == "heart failure"){
+      care_df <- care_df[order(care_df$Hospital.30.Day.Death..Mortality..Rates.from.Heart.Failure,care_df$Hospital.Name),]
+    } else if(outcome == "pneumonia"){
+      care_df <- care_df[order(care_df$Hospital.30.Day.Death..Mortality..Rates.from.Pneumonia,care_df$Hospital.Name),]
+    }
+#    print (care_df[1:10,])
+    return (care_df$Hospital.Name[1])
+  } else {
+    return ("please check and input again")
+  }
+}
+best("NY","heart failure")
+best("MD","heart attack")
+best("MD","pneumonia")
+best("BB","heart attack")
+best("NY","heart attack")
