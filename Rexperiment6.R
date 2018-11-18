@@ -1,0 +1,72 @@
+library(leaflet)
+library(data.table)
+library(dplyr)
+SY_stations<-read.csv("/home/eugeneliu/RProjects/experiment/sources/systation.csv",header = TRUE)
+lines_color <- data.frame("line"=c(1,2),"color"=c("#823094","#008CC1"))
+pal <- colorFactor(as.character(lines_color$color),domain=SY_stations$line)
+ShenYang <- leaflet() %>% setView(lng = 123.38,lat = 41.8,zoom=11) %>%  addProviderTiles("CartoDB.Positron")
+
+draw_line_add <- function(l_no){
+  line_color <- lines_color[lines_color$line == l_no,]$color
+  line_data <- SY_stations[SY_stations$line == l_no,]
+  draw_lines <- ShenYang %>% addPolylines(lat = line_data$gps_lat,lng = line_data$gps_lon,color = line_color)
+  return (draw_lines)
+}
+
+for(l in unique(SY_stations$line)){
+   ShenYang <- draw_line_add(l_no = l)
+}
+
+for(i in 1:nrow(SY_stations)){
+  s <- SY_stations$station[i]
+  SY_stations$lines[i] <- paste(SY_stations[SY_stations$station == s,]$line,collapse = "/")
+}
+
+ShenYang <- ShenYang %>% addCircleMarkers(color=pal(SY_stations$line),lng = SY_stations$gps_lon,lat = SY_stations$gps_lat,popup = paste(SY_stations$station,SY_stations$lines,sep = ","),radius=1.5) %>%
+  addLegend(pal = pal,values = SY_stations$line) %>%addTiles()
+
+ShenYang
+
+
+library(lubridate)
+library(data.table)
+library(dplyr)
+library(sqldf)
+library(leaflet)
+stations <- read.csv("/home/eugeneliu/RProjects/experiment/sources/systation.csv",header = TRUE)
+stations_data <- read.csv("/home/eugeneliu/RProjects/experiment/sources/SY-20150401.csv",header = FALSE)
+stations_data$seconds <- period_to_seconds(hms(stations_data$V3))
+stations_data<-as.data.table(stations_data)
+stations_data<-filter(stations_data,V6==0&seconds>=28800&seconds<=29100)
+stations_record <- substring(stations_data['V4'][,],4)
+stations_record <- data.frame(stations_record)
+names(stations_record)[1] <- 'station'
+count <- sqldf("select station,count(*) from stations_record group by station")
+merge_stations_count <- merge(count,stations,by="station")
+names(merge_stations_count)[2] <- c('count')
+getRadius <- function(merge_stations_count){
+  sapply(merge_stations_count$count,function(count){
+    count/40
+  }) 
+}
+ShenYang %>% addCircleMarkers(merge_stations_count$gps_lon,merge_stations_count$gps_lat,popup = paste(merge_stations_count$station,merge_stations_count$line,sep=","),color=pal(merge_stations_count$line),radius=getRadius(merge_stations_count),label=as.character(merge_stations_count$count)) %>% addTiles()
+                              
+
+
+library(lubridate)
+library(sqldf)
+library(plotly)
+stations <- read.csv("/home/eugeneliu/RProjects/experiment/sources/systation.csv",header = TRUE)
+stations_data <- read.csv("/home/eugeneliu/RProjects/experiment/sources/SY-20150401.csv",header = FALSE)
+stations_data$seconds <- period_to_seconds(hms(stations_data$V3))
+stations_data<-filter(stations_data,V6!=0&seconds>=61200&seconds<=61500)
+stations_record <- substring(stations_data['V4'][,],4)
+stations_record <- data.frame(stations_record)
+names(stations_record)[1] <- 'station'
+count <- sqldf("select station,count(*) from stations_record group by station")
+names(count)[2] <- c('counts')
+count <- count[order(-count$counts),]
+count <- count[1:5,1:2]
+plot_ly(count,x=~station,y=~counts)
+
+
